@@ -30,7 +30,7 @@ public abstract class TagElement extends WebElement {
 		}
 		return this;
 	}
-
+	
 	public boolean hasChild(WebElement child) {
 		if (children == null)
 			return false;
@@ -84,7 +84,7 @@ public abstract class TagElement extends WebElement {
 			String style = "";
 			for (String key : styles.keySet()) {
 				if (style.length() > 0) {
-					style += ",";
+					style += ";";
 				}
 				style += key + ":" + styles.get(key);
 			}

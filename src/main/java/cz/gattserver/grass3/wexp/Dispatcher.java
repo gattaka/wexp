@@ -12,7 +12,7 @@ import cz.gattserver.grass3.wexp.in.impl.UI;
 
 public class Dispatcher {
 
-	public static final String ACTION_PARAM_NAME = "action";
+	public static final String ACTION_CHUNK = "/wexp_action/";
 
 	private static final Map<String, Dispatcher> sessionInstance = new HashMap<String, Dispatcher>();
 
@@ -50,15 +50,16 @@ public class Dispatcher {
 	public void write(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		OutputStream out = resp.getOutputStream();
 
-		String actionHash = req.getParameter(ACTION_PARAM_NAME);
-
-		if (actionHash != null) {
+		String path = req.getPathInfo();
+		int actionChunkPos = path == null ? -1 : path.indexOf(ACTION_CHUNK);
+		if (actionChunkPos > -1) {
+			String actionHash = path.substring(actionChunkPos + ACTION_CHUNK.length());
 			Integer hash = Integer.parseInt(actionHash);
 			DispatchAction action = actionMap.get(hash);
 			if (action == null) {
 				// TODO 404
 			} else {
-				UI ui = action.dispatch();
+				UI ui = action.dispatch(req);
 				if (ui == null) {
 					throw new IllegalStateException("Action result UI was not set");
 				} else {
@@ -75,5 +76,4 @@ public class Dispatcher {
 		out.flush();
 		out.close();
 	}
-
 }

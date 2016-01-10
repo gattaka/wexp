@@ -27,6 +27,14 @@ public class WexpServlet extends HttpServlet {
 	public static final String WEXP_RESOURCE_PREFIX = "WEXP";
 	public static final String WEXP_RESOURCE_PATH = "/" + WEXP_RESOURCE_PREFIX;
 
+	public static String getPathPrefix() {
+		HttpServletRequest req = WexpServlet.getCurrentHttpServletRequest();
+		String uri = req.getRequestURI().toString();
+		String path = req.getPathInfo();
+		String prefix = path == null ? uri : uri.substring(0, uri.length() - path.length());
+		return prefix;
+	}
+
 	@Override
 	public void init() throws ServletException {
 

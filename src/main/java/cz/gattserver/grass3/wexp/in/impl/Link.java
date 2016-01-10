@@ -102,7 +102,7 @@ public class Link extends Component implements Serializable {
 					paramAddress += "&";
 			}
 		} else {
-			paramAddress = "?" + Dispatcher.ACTION_PARAM_NAME + "="
+			paramAddress = WexpServlet.getPathPrefix() + Dispatcher.ACTION_CHUNK
 					+ WexpServlet.getCurrentDispatcher().addActionAndCreateUUID(action);
 		}
 		LinkElement linkElement = new LinkElement(paramAddress);

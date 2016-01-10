@@ -1,31 +1,13 @@
 package cz.gattserver.grass3.wexp.in.impl;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.gattserver.grass3.wexp.in.Component;
-import cz.gattserver.grass3.wexp.out.IHeightElement;
-import cz.gattserver.grass3.wexp.out.IWidthElement;
+import cz.gattserver.grass3.wexp.in.Layout;
 import cz.gattserver.grass3.wexp.out.WebElement;
 import cz.gattserver.grass3.wexp.out.impl.DivElement;
 
-public class HorizontalLayout extends Component implements IHeightElement, IWidthElement, Serializable {
+public class HorizontalLayout extends Layout {
 
 	private static final long serialVersionUID = 4009745412791333101L;
-
-	protected List<Component> children;
-
-	private String width;
-	private String height;
-
-	public HorizontalLayout addChild(Component... childList) {
-		if (children == null)
-			children = new ArrayList<Component>();
-		for (Component child : childList)
-			children.add(child);
-		return this;
-	}
 
 	@Override
 	public WebElement construct() {
@@ -42,18 +24,6 @@ public class HorizontalLayout extends Component implements IHeightElement, IWidt
 			div.addChild(subDiv);
 		}
 		return div;
-	}
-
-	@Override
-	public IWidthElement setWidth(String width) {
-		this.width = width;
-		return this;
-	}
-
-	@Override
-	public IHeightElement setHeight(String height) {
-		this.height = height;
-		return this;
 	}
 
 }
