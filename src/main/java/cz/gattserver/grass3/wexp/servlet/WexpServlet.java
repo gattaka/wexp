@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -64,34 +65,41 @@ public class WexpServlet extends HttpServlet {
 
 		threadHttpServletRequest.set(req);
 
+		// získej dispatcher dle session (každá session má jeden dispatcher)
+		Dispatcher disp = Dispatcher.getSessionInstance(req.getSession().getId());
+		// aby byl dostupný z celého kontextu vlákna
+		threadDispatcher.set(disp);
+
 		// Nejde o request na CSS zdroje apod.?
 		if (req.getPathInfo() != null && req.getPathInfo().startsWith(WEXP_RESOURCE_PATH)) {
 
 			String filename = req.getPathInfo().substring(WEXP_RESOURCE_PATH.length());
-			InputStream is = WexpServlet.class.getResourceAsStream(filename);
-			if (is != null) {
-				InputStreamReader isr = new InputStreamReader(is);
-				BufferedReader reader = new BufferedReader(isr);
-				PrintWriter writer = resp.getWriter();
-				String text = "";
 
-				//
-				// We read the file line by line and later will be displayed on the
-				// browser page.
-				//
-				while ((text = reader.readLine()) != null) {
-					writer.println(text);
+			PrintWriter writer = resp.getWriter();
+
+			if (WEXP_STATUS_PREFIX.equals(filename.toLowerCase())) {
+				constructStatus(writer);
+			} else {
+				InputStream is = WexpServlet.class.getResourceAsStream(filename);
+				if (is != null) {
+					InputStreamReader isr = new InputStreamReader(is);
+					BufferedReader reader = new BufferedReader(isr);
+					String text = "";
+
+					//
+					// We read the file line by line and later will be displayed on the
+					// browser page.
+					//
+					while ((text = reader.readLine()) != null) {
+						writer.println(text);
+					}
 				}
-				writer.flush();
-				writer.close();
 			}
 
-		} else {
+			writer.flush();
+			writer.close();
 
-			// získej dispatcher dle session (každá session má jeden dispatcher)
-			Dispatcher disp = Dispatcher.getSessionInstance(req.getSession().getId());
-			// aby byl dostupný z celého kontextu vlákna
-			threadDispatcher.set(disp);
+		} else {
 
 			if (disp.getMainUI() == null) {
 				try {
@@ -105,6 +113,20 @@ public class WexpServlet extends HttpServlet {
 			}
 
 			disp.write(req, resp);
+		}
+	}
+
+	// ----------- DIAGNOSTICS -----------
+
+	public static final String WEXP_STATUS_PREFIX = "/wexp_status";
+
+	private void constructStatus(PrintWriter writer) {
+		Map<String, Dispatcher> instances = Dispatcher.diagnostics_getInstances();
+		writer.println("Sessions: \t\t" + instances.size());
+		for (String key : instances.keySet()) {
+			writer.println("Session " + key + ":");
+			Dispatcher instance = instances.get(key);
+			writer.println("\tAction keys: \t\t" + instance.diagnostics_getActionMapSize());
 		}
 	}
 }

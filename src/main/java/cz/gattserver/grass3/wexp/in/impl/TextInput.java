@@ -22,6 +22,8 @@ public class TextInput extends FormPart {
 		if (width != null)
 			inputElement.setStyle("width", width);
 		inputElement.setName(name);
+		if (value != null)
+			inputElement.setValue(value);
 		div.addChild(inputElement);
 		return div;
 	}

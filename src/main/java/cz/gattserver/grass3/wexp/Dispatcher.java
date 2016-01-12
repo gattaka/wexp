@@ -39,7 +39,6 @@ public class Dispatcher {
 	public Integer addActionAndCreateUUID(DispatchAction action) {
 		Integer hash = action.hashCode();
 		actionMap.put(hash, action);
-		System.out.println("actionMap size: " + actionMap.size());
 		return hash;
 	}
 
@@ -75,5 +74,15 @@ public class Dispatcher {
 		}
 		out.flush();
 		out.close();
+	}
+
+	// ----------- DIAGNOSTICS -----------
+
+	public int diagnostics_getActionMapSize() {
+		return actionMap.size();
+	}
+
+	public static Map<String, Dispatcher> diagnostics_getInstances() {
+		return sessionInstance;
 	}
 }

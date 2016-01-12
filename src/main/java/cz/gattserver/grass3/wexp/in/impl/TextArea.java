@@ -31,6 +31,8 @@ public class TextArea extends FormPart implements IHeightElement {
 		if (height != null)
 			textAreaElement.setStyle("height", height);
 		textAreaElement.setName(name);
+		if (value != null)
+			textAreaElement.setValue(value);
 		div.addChild(textAreaElement);
 		return div;
 	}
