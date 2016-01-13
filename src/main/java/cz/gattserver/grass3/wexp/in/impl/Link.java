@@ -12,7 +12,6 @@ import cz.gattserver.grass3.wexp.out.WebElement;
 import cz.gattserver.grass3.wexp.out.impl.DivElement;
 import cz.gattserver.grass3.wexp.out.impl.LinkElement;
 import cz.gattserver.grass3.wexp.out.impl.TextElement;
-import cz.gattserver.grass3.wexp.servlet.WexpServlet;
 
 public class Link extends Component implements Serializable {
 
@@ -93,17 +92,17 @@ public class Link extends Component implements Serializable {
 		String paramAddress = "";
 		if (address != null) {
 			paramAddress = address;
-			if (params.isEmpty() == false)
+			if (params != null && params.isEmpty() == false) {
 				paramAddress += "?";
-			for (Iterator<String> s = params.keySet().iterator(); s.hasNext();) {
-				String key = s.next();
-				paramAddress += s + "=" + params.get(key);
-				if (s.hasNext())
-					paramAddress += "&";
+				for (Iterator<String> s = params.keySet().iterator(); s.hasNext();) {
+					String key = s.next();
+					paramAddress += s + "=" + params.get(key);
+					if (s.hasNext())
+						paramAddress += "&";
+				}
 			}
 		} else {
-			paramAddress = WexpServlet.getPathPrefix() + Dispatcher.ACTION_CHUNK
-					+ WexpServlet.getCurrentDispatcher().addActionAndCreateUUID(action);
+			paramAddress = Dispatcher.addActionAndCreateAddress(action);
 		}
 		LinkElement linkElement = new LinkElement(paramAddress);
 		if (target != null)

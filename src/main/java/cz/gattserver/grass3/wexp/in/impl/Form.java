@@ -2,11 +2,11 @@ package cz.gattserver.grass3.wexp.in.impl;
 
 import cz.gattserver.grass3.wexp.DispatchAction;
 import cz.gattserver.grass3.wexp.Dispatcher;
+import cz.gattserver.grass3.wexp.Request;
 import cz.gattserver.grass3.wexp.in.Component;
 import cz.gattserver.grass3.wexp.in.Layout;
 import cz.gattserver.grass3.wexp.out.WebElement;
 import cz.gattserver.grass3.wexp.out.impl.FormElement;
-import cz.gattserver.grass3.wexp.servlet.WexpServlet;
 
 public class Form extends Layout {
 
@@ -59,8 +59,7 @@ public class Form extends Layout {
 		if (address != null) {
 			paramAddress = address;
 		} else {
-			paramAddress = WexpServlet.getPathPrefix() + Dispatcher.ACTION_CHUNK
-					+ WexpServlet.getCurrentDispatcher().addActionAndCreateUUID(action); 
+			paramAddress = Dispatcher.addActionAndCreateAddress(action);
 		}
 		FormElement formElement = new FormElement(paramAddress);
 		if (width != null)
