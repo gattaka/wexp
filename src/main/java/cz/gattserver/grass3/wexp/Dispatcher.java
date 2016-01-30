@@ -1,12 +1,10 @@
 package cz.gattserver.grass3.wexp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +16,6 @@ import javax.servlet.http.HttpSession;
 
 import cz.gattserver.grass3.wexp.in.impl.UI;
 import cz.gattserver.grass3.wexp.servlet.WebApp;
-import cz.gattserver.grass3.wexp.servlet.WexpServlet;
 
 public class Dispatcher {
 
@@ -136,23 +133,19 @@ public class Dispatcher {
 			 * CSS zdroje apod.
 			 */
 			String filename = path.substring(WEXP_RESOURCE_PREFIX.length());
-			PrintWriter writer = resp.getWriter();
 			if (WEXP_STATUS_PREFIX.equals(filename.toLowerCase())) {
+				PrintWriter writer = resp.getWriter();
 				constructStatus(writer);
+				writer.flush();
+				writer.close();
+			} else if (WEXP_GC_PREFIX.equals(filename.toLowerCase())) {
+				PrintWriter writer = resp.getWriter();
+				collectGarbage(writer);
+				writer.flush();
+				writer.close();
 			} else {
-				InputStream is = WexpServlet.class.getResourceAsStream(filename);
-				if (is != null) {
-					InputStreamReader isr = new InputStreamReader(is);
-					BufferedReader reader = new BufferedReader(isr);
-					String text = "";
-
-					while ((text = reader.readLine()) != null) {
-						writer.println(text);
-					}
-				}
+				FileHandler.handleRequest(req, resp, filename);
 			}
-			writer.flush();
-			writer.close();
 		} else {
 			/*
 			 * Statická bookmarkable stránka
@@ -172,6 +165,7 @@ public class Dispatcher {
 	// ----------- DIAGNOSTICS -----------
 
 	public static final String WEXP_STATUS_PREFIX = "/wexp_status";
+	public static final String WEXP_GC_PREFIX = "/wexp_gc";
 
 	private static Map<HttpSession, Dispatcher> sessionMap = new WeakHashMap<HttpSession, Dispatcher>();
 
@@ -183,13 +177,31 @@ public class Dispatcher {
 		return actionMap.size();
 	}
 
+	private void collectGarbage(PrintWriter writer) {
+		System.gc();
+		writer.println("Collected");
+	}
+
 	private void constructStatus(PrintWriter writer) {
 		Map<HttpSession, Dispatcher> instances = Dispatcher.diagnostics_getInstances();
-		writer.println("Sessions: \t\t" + instances.size());
+		writer.println("Sessions/Dispatchers: \t\t" + instances.size());
 		for (HttpSession key : instances.keySet()) {
+			// Session key
 			writer.println("Session " + key.getId() + ":");
 			Dispatcher instance = instances.get(key);
 			writer.println("\tAction keys: \t\t" + instance.diagnostics_getActionMapSize());
+			// LastAccessedTime
+			try {
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(key.getLastAccessedTime());
+				writer.println("\tLast accessed: \t\t" + cal.getTime());
+				cal = Calendar.getInstance();
+				cal.setTimeInMillis(key.getCreationTime());
+				writer.println("\tCreation time: \t\t" + cal.getTime());
+				writer.println("\tMax inactive: \t\t" + key.getMaxInactiveInterval() + "s");
+			} catch (IllegalStateException e) {
+				writer.println("\tInvalidated ... waiting for GC");
+			}
 		}
 	}
 }

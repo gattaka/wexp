@@ -19,6 +19,7 @@ public class UI implements Serializable {
 	protected Component content;
 
 	protected Map<String, CSSRule> css;
+	protected String favicon;
 	protected Set<String> cssFiles;
 
 	private String charset = "UTF-8";
@@ -34,6 +35,11 @@ public class UI implements Serializable {
 		if (cssFiles == null)
 			cssFiles = new HashSet<String>();
 		cssFiles.add(file);
+		return this;
+	}
+
+	public UI setFavicon(String favicon) {
+		this.favicon = favicon;
 		return this;
 	}
 
@@ -73,9 +79,16 @@ public class UI implements Serializable {
 				TextElement textElement = new TextElement(cssLink);
 				page.addHeader(textElement);
 			}
-			TextElement textElement = new TextElement("<meta name=\"viewport\" content=\"initial-scale=1.0, width=device-width, user-scalable=no\">");
-			page.addHeader(textElement);
-			
+			page.addHeader(new TextElement(
+					"<meta name=\"viewport\" content=\"initial-scale=1.0, width=device-width, user-scalable=no\">"));
+			page.addHeader(new TextElement("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"));
+
+		}
+		if (favicon != null) {
+			page.addHeader(new TextElement("<link rel=\"shortcut icon\" type=\"image/vnd.microsoft.icon\" href=\""
+					+ favicon + "\" />"));
+			page.addHeader(new TextElement("<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\"" + favicon
+					+ "\" />"));
 		}
 
 		DivElement mainLayout = new DivElement();
@@ -84,5 +97,4 @@ public class UI implements Serializable {
 		page.addChild(mainLayout);
 		return page;
 	}
-
 }
